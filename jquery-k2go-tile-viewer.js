@@ -1,7 +1,7 @@
 ;(function($){ var objMethods = {
 /******************************************************************************/
 /* k2go TileViewer for JQuery Plugin                                          */
-/* version   : 1.2.0                                                          */
+/* version   : 1.2.1                                                          */
 /* author    : Inoue Computer Service.                                        */
 /* Copyright (c) k2go. All rights reserved.                                   */
 /* See License.txt for the license information.                               */
@@ -1150,7 +1150,7 @@ function _createClone(pPosition)
     $clone.css     ({ left : $main.position().left, top : $main.position().top, transformOrigin : (pPosition.x - $main.offset().left) + "px " + (pPosition.y - $main.offset().top) + "px" });
     $clone.on      ("contextmenu.k2goTileViewer", function(){ return false; });
     $main .after   ($clone);
-    $main .css     ("opacity", "0");
+    $main .css     ("opacity", "0.01");
   }
   catch(pError)
   {
