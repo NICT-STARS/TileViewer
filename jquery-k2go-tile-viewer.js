@@ -2,7 +2,6 @@
 /******************************************************************************/
 /* k2go TileViewer for JQuery Plugin                                          */
 /* version   : 1.2.1                                                          */
-/* author    : Inoue Computer Service.                                        */
 /* Copyright (c) NICT. All rights reserved.                                   */
 /* See License.txt for the license information.                               */
 /******************************************************************************/
