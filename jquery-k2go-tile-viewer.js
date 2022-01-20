@@ -1,7 +1,7 @@
 ;(function($){ var objMethods = {
 /******************************************************************************/
 /* k2go TileViewer for JQuery Plugin                                          */
-/* version   : 1.2.1                                                          */
+/* version   : 1.2.2                                                          */
 /* Copyright (c) NICT. All rights reserved.                                   */
 /* See License.txt for the license information.                               */
 /******************************************************************************/
@@ -1616,7 +1616,8 @@ function _getAbsolutePosition(pPositionInfo)
     else if ("degrees" in pPositionInfo)
     {
       var $main             = $(".k2go-tile-viewer-main:not(.k2go-tile-viewer-clone)");
-      var objScale          = $main.data("options.k2goTileViewer").scales[pPositionInfo.degrees.scale];
+      var objPositionInfo   = $.extend({}, pPositionInfo);
+      var objScale          = $main.data("options.k2goTileViewer").scales[objPositionInfo.degrees.scale];
       var strGeodeticSystem = $main.data("options.k2goTileViewer").geodeticSystem;
 
       if (strGeodeticSystem == "standard")
@@ -1625,19 +1626,21 @@ function _getAbsolutePosition(pPositionInfo)
         var intOrginTop  =       2 * 6378137 * Math.PI /   2;
         var intUnit      =       2 * 6378137 * Math.PI / (objScale.width * objScale.size) / Math.pow(2, objScale.zoom);
 
-        objPosition.scale =                            pPositionInfo.degrees.scale;
-        objPosition.left  =                            pPositionInfo.degrees.left                                          * 20037508.34 / 180.0;
-        objPosition.top   = (Math.log(Math.tan((90.0 + pPositionInfo.degrees.top) * Math.PI / 360.0)) / (Math.PI / 180.0)) * 20037508.34 / 180.0;
+        objPosition.scale =                            objPositionInfo.degrees.scale;
+        objPosition.left  =                            objPositionInfo.degrees.left                                          * 20037508.34 / 180.0;
+        objPosition.top   = (Math.log(Math.tan((90.0 + objPositionInfo.degrees.top) * Math.PI / 360.0)) / (Math.PI / 180.0)) * 20037508.34 / 180.0;
         objPosition.left  = (objPosition.left - intOrginLeft   ) / intUnit;
         objPosition.top   = (intOrginTop      - objPosition.top) / intUnit;
       }
 /*-----* degrees(himawari.fd) *-----------------------------------------------*/
       else if (strGeodeticSystem == "himawari8.fd")
       {
-        var objScaleSize = _getScaleSize(pPositionInfo.degrees.scale);
+        if (objPositionInfo.degrees.left < 0) objPositionInfo.degrees.left = 180 + (180 + objPositionInfo.degrees.left);
+
+        var objScaleSize = _getScaleSize(objPositionInfo.degrees.scale);
         var objMargin    = { top : 0.006, right : 0.0045, bottom : 0.006, left : 0.0045 };
-        var intLeft      = ((pPositionInfo.degrees.left + 180 - 140.7) % 360.0 - 180.0) / 180.0 * Math.PI;
-        var intTop       = ((pPositionInfo.degrees.top  + 90.0       ) % 180.0 -  90.0) / 180.0 * Math.PI;
+        var intLeft      = ((objPositionInfo.degrees.left + 180 - 140.7) % 360.0 - 180.0) / 180.0 * Math.PI;
+        var intTop       = ((objPositionInfo.degrees.top  + 90.0       ) % 180.0 -  90.0) / 180.0 * Math.PI;
         var intRadius    = objScaleSize.width * (1.0 - objMargin.right - objMargin.left)   / 2;
         var e2           = 0.00669438003;
         var n            = intRadius / Math.sqrt(1.0 - e2 * Math.sin(intTop) * Math.sin(intTop));
@@ -1652,7 +1655,7 @@ function _getAbsolutePosition(pPositionInfo)
 
         var z = intRadius * f - (n * Math.cos(intTop) * Math.cos(intLeft));
 
-        objPosition.scale = pPositionInfo.degrees.scale;
+        objPosition.scale = objPositionInfo.degrees.scale;
         objPosition.left  =  n * Math.cos(intTop) * Math.sin(intLeft);
         objPosition.top   = (n * (1.0 - e2))      * Math.sin(intTop );
         objPosition.left  = objScaleSize.width / 2 * Math.atan(objPosition.left / z) / theta;
@@ -1663,16 +1666,16 @@ function _getAbsolutePosition(pPositionInfo)
 /*-----* degrees(himawari.jp) *-----------------------------------------------*/
       else if (strGeodeticSystem == "himawari8.jp")
       {
-        var objScaleSize = _getScaleSize(pPositionInfo.degrees.scale);
-        var intX         = (pPositionInfo.degrees.left + 180) % 360 - 180;
-        var intY         = (pPositionInfo.degrees.top  +  90) % 180 -  90;
+        var objScaleSize = _getScaleSize(objPositionInfo.degrees.scale);
+        var intX         = (objPositionInfo.degrees.left + 180) % 360 - 180;
+        var intY         = (objPositionInfo.degrees.top  +  90) % 180 -  90;
 
         if (intX < 119  ) intX = 119;
         if (intX > 152  ) intX = 152;
         if (intY <  21.5) intY =  21.5;
         if (intY >  48.5) intY =  48.5;
 
-        objPosition.scale = pPositionInfo.degrees.scale;
+        objPosition.scale = objPositionInfo.degrees.scale;
         objPosition.left  = objScaleSize.width  *      (intX - 119.0) / (152.0 - 119.0);
         objPosition.top   = objScaleSize.height * (1 - (intY -  21.5) / ( 48.5 -  21.5));
       }
