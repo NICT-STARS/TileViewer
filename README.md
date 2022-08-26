@@ -33,3 +33,29 @@ BSD2
 1. ライブラリをダウンロードする。
 2. jquery（Ver3.4.1以上）とダウンロードしたライブラリをHTMLファイルへ組み込む。
 3. windowオブジェクトのload完了後、タイル画像を組み込みたい要素へ実装する。
+
+
+<table>
+              <tbody>
+                <tr>
+                  <th>名前</th>
+                  <th>型</th>
+                  <th>備考</th>
+                </tr>
+                <tr>
+                  <td>currentDate</td>
+                  <td>Date</td>
+                  <td>現在日時</td>
+                </tr>
+                <tr>
+                  <td>startDate</td>
+                  <td>Date</td>
+                  <td>開始日時。例えば画面上に横方向の時間軸バー等を持つWebアプリケーションなら左端の日時。</td>
+                </tr>
+                <tr>
+                  <td>endDate</td>
+                  <td>Date</td>
+                  <td>終了日時。例えば画面上に横方向の時間軸バー等を持つWebアプリケーションなら右端の日時。</td>
+                </tr>
+              </tbody>
+            </table>
