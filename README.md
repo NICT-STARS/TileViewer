@@ -28,6 +28,13 @@ BSD2
 
 ------------
 
+### 時間（日時）の同期
+日時情報を持つWebアプリケーションの場合、グローバルなメソッドとして下記に示すSTARScontroller_getDate関数とSTARScontroller_setDate関数を実装して下さい。Webアプリケーションが日時情報を持たない場合は実装不要です。
+
+#### STARScontroller_getDate関数
+STARScontrollerがWebアプリケーションの現在日時情報を取得するため定期的にコールします。戻り値としてWebアプリケーションの現在日時情報を返して下さい。
+
+
 ### 導入方法
 
 1. ライブラリをダウンロードする。
