@@ -90,14 +90,7 @@ STARScontrollerがWebアプリケーションの現在日時情報を取得す�
         <tr>
           <td>実装例</td>
           <td class="code">
-            <pre>  function STARScontroller_getDate()
-  {
-    var date={};
-    date.currentDate=現在日時;
-    date.startDate=時間軸バー左端日時;
-    date.endDate=時間軸バー右端日時;
-    return date;
-  }</pre>
+
           </td>
         </tr>
       </tbody>
