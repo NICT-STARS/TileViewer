@@ -34,6 +34,79 @@ BSD2
 ### STARScontroller_getDate関数
 STARScontrollerがWebアプリケーションの現在日時情報を取得するため定期的にコールします。戻り値としてWebアプリケーションの現在日時情報を返して下さい。
 
+<table class="method" style="margin-top: 30px">
+      <tbody>
+        <tr>
+          <td>構文</td>
+          <td>STARScontroller_getDate()</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>
+            Webアプリケーションの現在日時情報を保持するJSONオブジェクト
+            <table style="width: 97%">
+              <tbody>
+                <tr>
+                  <th>名前</th>
+                  <th>型</th>
+                  <th>備考</th>
+                </tr>
+                <tr>
+                  <td>currentDate</td>
+                  <td>Date</td>
+                  <td>現在日時</td>
+                </tr>
+                <tr>
+                  <td>startDate</td>
+                  <td>Date</td>
+                  <td>開始日時。例えば画面上に横方向の時間軸バー等を持つWebアプリケーションなら左端の日時。</td>
+                </tr>
+                <tr>
+                  <td>endDate</td>
+                  <td>Date</td>
+                  <td>終了日時。例えば画面上に横方向の時間軸バー等を持つWebアプリケーションなら右端の日時。</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table style="width: 97%">
+              <tbody>
+                <tr>
+                  <th style="text-align: left">例</th>
+                </tr>
+                <tr>
+                  <td class="code">
+                    <pre>  {
+    currentDate : xxxxx,
+    startDate : xxxxx,
+    endDate : xxxxx
+  }</pre>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>実装例</td>
+          <td class="code">
+            <pre>  function STARScontroller_getDate()
+  {
+    var date={};
+    date.currentDate=現在日時;
+    date.startDate=時間軸バー左端日時;
+    date.endDate=時間軸バー右端日時;
+    return date;
+  }</pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
 
 ### 導入方法
 
