@@ -34,7 +34,7 @@ BSD2
 ### STARScontroller_getDate関数
 STARScontrollerがWebアプリケーションの現在日時情報を取得するため定期的にコールします。戻り値としてWebアプリケーションの現在日時情報を返して下さい。
 
-<table class="method" style="margin-top: 30px">
+<table>
       <tbody>
         <tr>
           <td>構文</td>
@@ -80,11 +80,7 @@ STARScontrollerがWebアプリケーションの現在日時情報を取得す�
                 </tr>
                 <tr>
                   <td class="code">
-                    <pre>  {
-    currentDate : xxxxx,
-    startDate : xxxxx,
-    endDate : xxxxx
-  }</pre>
+
                   </td>
                 </tr>
               </tbody>
