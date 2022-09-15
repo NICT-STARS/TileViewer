@@ -1,0 +1,1402 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <title>TileViewer</title>
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+  <link rel="stylesheet" href="style.css" media="all">
+</head>
+
+<body>
+
+  <div id="main-img">
+    <h1>TileViewer 開発者向けドキュメント</h1>
+  </div>
+
+  <div class="cols">
+    <h2>概要</h2>
+    <p>
+      Webページにタイル化された画像をスケーラブルに表示する機能を簡単に組み込む事が出来るjqueryプラグインです。<br />
+      <a href="sample.html" target="_blank">サンプルはこちら</a>
+    </p>
+  </div>
+
+  <div class="cols">
+    <h2>変更履歴</h2>
+    <ul>
+      <li>
+        2022年01月18日 バージョン1.2.2リリース
+        <ul>
+          <li>気象衛星ひまわり8号の全球画像で緯度経度からピクセル座標を計算する際に一部正しく計算されない不具合を修正しました。</li>
+        </ul>
+      </li>
+      <li>
+        2021年08月05日 バージョン1.2.1リリース
+        <ul>
+          <li>一部のブラウザでマウスホイールによるズームイン・アウトが正常に動作しなくなった問題を修正しました。</li>
+        </ul>
+      </li>
+      <li>
+        2020年10月01日
+        <ul>
+          <li>ライセンスが BSD2 になりました。</li>
+        </ul>
+      </li>
+      <li>
+        2020年08月05日 バージョン1.2.0リリース
+        <ul>
+          <li>オプションにdoubleTapが追加され、ダブルクリック（ダブルタップ）した際に呼び出されるコールバック関数を指定出来るようになりました。</li>
+        </ul>
+      </li>
+      <li>
+        2020年07月08日 バージョン1.1.0リリース
+        <ul>
+          <li>オプションにlimitZoomEffectが追加され、マウスホイールやピンチでの操作中に、最大または最小のズーム率を超えてタイル画像を拡縮させるか指定出来るようになりました。</li>
+        </ul>
+      </li>
+      <li>
+        2019年12月03日 バージョン1.0.1リリース
+        <ul>
+          <li>タイル画像をドラッグ等で移動した時に、addEntityメソッドでプロットされた要素が画面外へ移動すると、要素自体の登録も消えてしまう不具合を修正しました。</li>
+        </ul>
+      </li>
+      <li>2019年11月06日 バージョン1.0.0（初版）リリース</li>
+    </ul>
+  </div>
+
+  <div class="cols">
+    <h2>ライセンス</h2>
+    <p><a
+    href="https://opensource.org/licenses/bsd-license.php"
+    target="_blank"
+    >BSD2</a
+  ></p>
+  </div>
+
+  <div class="cols">
+    <h2>主な機能</h2>
+    <ul>
+      <li>タイル画像なら何でも表示可能です。同じ構造のタイル画像なら複数を重ねて表示する事も可能です。</li>
+      <li><a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank">国土地理院</a>や<a
+          href="https://openstreetmap.jp/"
+          target="_blank">オープンストリートマップ</a>等の標準的な地図画像の座標系（緯度経度による位置計算）に対応してます。その他、情報通信研究機構（NICT）が提供している<a
+          href="https://sc-web.nict.go.jp/himawari/himawari-archive.html"
+          target="_blank">気象衛星ひまわり8号タイル画像</a>の座標系（緯度経度による位置計算）にも対応してます。</li>
+      <li>マウスドラッグで上下左右に移動出来ます。</li>
+      <li>タッチデバイスではスワイプで上下左右に移動出来ます。</li>
+      <li>マウスの左ダブルクリックでズームイン、右ダブルクリックでズームアウト出来ます。</li>
+      <li>マウスホイールでズームイン・アウト出来ます。</li>
+      <li>タッチデバイスではピンチ操作でズームイン・アウト出来ます。</li>
+      <li>任意の要素（jqueryオブジェクト）を任意の位置にプロットする事が出来ます。</li>
+    </ul>
+  </div>
+
+  <div class="cols">
+    <h2>導入方法</h2>
+    <p><span class="num">1.</span>下記ライブラリをダウンロードする。</p>
+
+    <ul>
+      <li>jquery-k2go-tile-viewer.js</li>
+      <li>jquery-k2go-tile-viewer.css</li>
+      <li>License.txt</li>
+    </ul>
+
+    <p><span class="num">2.</span>jquery（Ver3.4.1以上）とダウンロードしたライブラリをHTMLファイルへ組み込む。</p>
+
+    <span class="ex">例</span>
+
+    <pre>
+&lt;!DOCTYPE html&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;script type="text/javascript" src="jquery-3.4.1.min.js"       &gt;&lt;/script&gt;
+  &lt;script type="text/javascript" src="jquery-k2go-tile-viewer.js"&gt;&lt;/script&gt;
+  &lt;link   type="text/css"       href="jquery-k2go-tile-viewer.css" rel="stylesheet"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  ・・・
+&lt;/body&gt;
+&lt;/html&gt;
+            </pre>
+
+    <p><span class="num">3.</span>windowオブジェクトのload完了後、タイル画像を組み込みたい要素へ実装する。</p>
+
+    <span class="ex">例</span>
+
+    <pre>
+$(window).on("load", function()
+{
+  $(セレクタ).k2goTileViewer(オプション);
+  $(セレクタ).k2goTileViewer("create");
+});
+    </pre>
+
+  </div>
+
+
+  <div class="cols">
+    <h2>オプション</h2>
+    <table class="method" style="margin: 30px 0 30px 0;">
+      <thead>
+        <tr>
+          <td style="background: #eee">名前</td>
+          <td style="background: #eee">型</td>
+          <td style="background: #eee">初期値</td>
+          <td style="background: #eee">説明</td>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>foregroundImages</td>
+          <td>Array</td>
+          <td>undefined</td>
+          <td>
+            <em>タイル画像URL（文字列）の配列</em><br />
+            同じ構造の異なるタイル画像を重ねて表示したい場合は複数指定します。複数指定した場合は、配列先頭のURLが最背面に配置され、以降は順に上へ重なるよう配置され、配列末尾のURLが最前面に配置されます。URLには以下の書式が使用出来ます。
+            <table>
+              <thead>
+                <tr>
+                  <td>書式</td>
+                  <td>置き換わる値</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>%x</td>
+                  <td>タイル座標（X）</td>
+                </tr>
+                <tr>
+                  <td>%y</td>
+                  <td>タイル座標（Y）</td>
+                </tr>
+                <tr>
+                  <td>%z</td>
+                  <td>ズームレベル</td>
+                </tr>
+                <tr>
+                  <td>%w</td>
+                  <td>タイル画像サイズ（幅）</td>
+                </tr>
+                <tr>
+                  <td>%h</td>
+                  <td>タイル画像サイズ（高さ）</td>
+                </tr>
+                <tr>
+                  <td>%ws</td>
+                  <td>タイル画像サイズ（幅）× 表示倍率　※表示倍率はscalesオプションを参照</td>
+                </tr>
+                <tr>
+                  <td>%hs</td>
+                  <td>タイル画像サイズ（高さ）× 表示倍率　※表示倍率はscalesオプションを参照</td>
+                </tr>
+                <tr>
+                  <td>%c</td>
+                  <td>タイル分割値（タイル座標XYの最大値）</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>backgroundImage</td>
+          <td>String</td>
+          <td>undefined</td>
+          <td>
+            <em>タイル画像の背面に下絵として表示する画像のURL</em><br />
+            通常、最もズームアウトしたレイヤ（タイル数が1枚のレイヤ）のタイル画像のURLを指定します。ズームインやズームアウトの際にタイル画像の読み込みに時間が掛かっている場合、backgroundImageが指定されていると、タイル画像が読み込まれる迄の見栄えが良くなる効果が期待されます。
+          </td>
+        </tr>
+        <tr>
+          <td>scales</td>
+          <td>Array</td>
+          <td>-</td>
+          <td>
+            <em>各レイヤにおいてタイル要素をどの様な縮尺で表示するかを指定したオブジェクトの配列</em><br />
+            foregroundImagesのURLで指定された書式は、この情報を元に置き換えられ、ズームインおよびズームアウトも、この情報も元に行われます。各オブジェクトには以下の情報を指定します。
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>width</td>
+                  <td>Number</td>
+                  <td>タイル画像サイズ（幅）</td>
+                </tr>
+                <tr>
+                  <td>height</td>
+                  <td>Number</td>
+                  <td>タイル画像サイズ（高さ）</td>
+                </tr>
+                <tr>
+                  <td>size </td>
+                  <td>Number</td>
+                  <td>タイル要素の表示倍率。通常は1<br>タイル要素は幅がwidth × size、高さがheight × sizeの大きさで表示されます。</td>
+                </tr>
+                <tr>
+                  <td>count</td>
+                  <td>Number</td>
+                  <td>タイル分割値（タイル座標XYの最大値）</td>
+                </tr>
+                <tr>
+                  <td>zoom</td>
+                  <td>Number</td>
+                  <td>
+                    タイル画像のズームレベル<br>国土地理院やオープンストリートマップ等の標準的な地図画像を使用する際は地図の表示倍率（ズームレベル）を指定します。<br>それ以外のタイル画像を使用する際は指定不要です。
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>geodeticSystem</td>
+          <td>String</td>
+          <td>undefined</td>
+          <td>
+            <em>座標系の種類</em><br />
+            タイル画像が座標系に基づく地図画像等の場合、その種類を指定します。タイル画像が座標系に基づく画像では無い場合は指定不要です。座標系の種類は以下が指定出来ます。
+            <table>
+              <thead>
+                <tr>
+                  <td>値</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>standard </td>
+                  <td>国土地理院やオープンストリートマップ等の標準的な地図画像。</td>
+                </tr>
+                <tr>
+                  <td>himawari8.jp</td>
+                  <td>情報通信研究機構（NICT）が提供している気象衛星ひまわり8号の日本域画像。</td>
+                </tr>
+                <tr>
+                  <td>himawari8.fd</td>
+                  <td>情報通信研究機構（NICT）が提供している気象衛星ひまわり8号の全球画像。</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>drawingSize</td>
+          <td>Number</td>
+          <td>1</td>
+          <td>
+            <em>描画領域に対するタイル要素を読み込む領域の倍率</em><br />
+            1を指定すると描画領域を埋める分だけのタイル要素が生成されます。<br />
+            2を指定すると描画領域の2倍の領域を埋める分のタイル要素が生成されるようになります。<br />
+            1より大きい値を指定すると、描画領域からはみ出した領域（隠れている領域）にもタイル画像が読み込まれるようになるため、ドラッグ操作等で上下左右に移動した際に隠れていた領域のタイル画像が既に読み込まれている状態を得る事が出来ます。ただし、読み込まれるタイル画像の量（ファイル数）も多くなるので、あまり大きな倍率にするとcreateメソッドやズームイン・アウト等のレスポンスにも影響を与えます。
+          </td>
+        </tr>
+        <tr>
+          <td>timeout</td>
+          <td>Number</td>
+          <td>1000</td>
+          <td>
+            <em>タイル画像の読み込みが完了するまでの待ち時間のタイムアウト値 (単位はミリ秒)</em><br />
+            createメソッドやズームイン・アウトを行った際、タイル画像の読み込みが全て完了してから当該レイヤの再描画が行われますが、タイル画像の読み込みが完了していなくても指定した値の時間が経過した場合は再描画が行われるようになります。<br />
+            大きな値（長い時間）を指定すると、タイル画像の読み込みが完了してから再描画される可能性が高くなるので、画像の切り替わりがシームレスになり見栄えが良くなる事が期待されますが、その分、レスポンスが悪くなります。<br />
+            小さな値（短い時間）を指定すると、タイル画像の読み込みが完了していなくても再描画される可能性が高くなるので、画像の切り替わりの見栄えが悪くなる可能性が高くなりますが、レスポンスは良くなります。
+          </td>
+        </tr>
+        <tr>
+          <td>disableMove</td>
+          <td>Boolean</td>
+          <td>false</td>
+          <td>trueに設定すると上下左右への移動機能が無効になります。</td>
+        </tr>
+        <tr>
+          <td>disableZoom</td>
+          <td>Boolean</td>
+          <td>false</td>
+          <td>trueに設定するとズーム機能が無効になります。</td>
+        </tr>
+        <tr>
+          <td>limitZoomEffect</td>
+          <td>Boolean</td>
+          <td>false</td>
+          <td>trueに設定するとマウスホイールやピンチでの操作中に最大または最小のズーム率を超えてタイル画像が拡縮しなくなります。</td>
+        </tr>
+        <tr>
+          <td>zoomStart</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>ズームが開始された際に呼び出されるコールバック関数です。引数のオブジェクトよりズームの基点となるオフセット座標（x、y）が取得出来ます。</td>
+        </tr>
+        <tr>
+          <td>zoomEnd</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>ズームが完了した際に呼び出されるコールバック関数です。引数のオブジェクトよりズーム前とズーム後のスケール値（scalesオプションのindex値（beforeScale、afterScale））が取得出来ます。</td>
+        </tr>
+        <tr>
+          <td>moveStart</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>ドラッグ（スワイプ）が開始された際に呼び出されるコールバック関数です。引数のオブジェクトよりクリック（タップ）した位置のオフセット座標（x、y）が取得出来ます。</td>
+        </tr>
+        <tr>
+          <td>move</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>上下左右の移動が行われる度に呼び出されるコールバック関数です。引数のオブジェクトよりピクセル移動量（left、top）が取得出来ます。</td>
+        </tr>
+        <tr>
+          <td>moveEnd</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>ドラッグ（スワイプ）が終了した際に呼び出されるコールバック関数です。</td>
+        </tr>
+        <tr>
+          <td>tapHold</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>描画領域上の任意の位置を長押しした際に呼び出されるコールバック関数です。引数のオブジェクトより長押しした位置のオフセット座標（x、y）が取得出来ます。</td>
+        </tr>
+        <tr>
+          <td>doubleTap</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>
+            描画領域上の任意の位置をダブルクリック（ダブルタップ）した際に呼び出されるコールバック関数です。引数のオブジェクトよりダブルクリック（ダブルタップ）した位置のオフセット座標（x、y）が取得出来ます。<br />
+            また、ダブルクリックの場合は引数のオブジェクトよりマウスボタン情報（which）が取得出来ます。値は左ボタンの場合が1、右ボタンの場合が-1となります（ダブルタップの場合は常に1）。<br />
+            <em>※注意※<br />ダブルクリック（ダブルタップ）のデフォルト動作はズームですが、このdoubleTapオプションを指定するとダブルクリック（ダブルタップ）ではズームされなくなります。</em>
+          </td>
+        </tr>
+        <tr>
+          <td>addTile</td>
+          <td>Function</td>
+          <td>undefined</td>
+          <td>タイル要素が生成される度に呼び出されるコールバック関数です。引数のオブジェクトよりタイル要素（jqueryオブジェクト）およびタイル情報（タイル座標（x,y）、タイルサイズ（width,height））が取得出来ます。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <span class="ex">コンストラクタの例</span>
+
+    <pre>
+$(セレクタ).k2goTileViewer(
+{
+  foregroundImages :
+  [
+    "https://cyberjapandata.gsi.go.jp/xyz/std/%z/%x/%y.png"                // 国土地理院の地図画像URL
+  ],
+  backgroundImage  : "https://cyberjapandata.gsi.go.jp/xyz/std/0/0/0.png", // 国土地理院の地図画像URL
+  scales :
+  [
+    { width : 256, height : 256, size : 1.0, count :     32, zoom :  5 },  // 国土地理院の地図画像は256×256ピクセル。ズームレベルは5～18。
+    { width : 256, height : 256, size : 1.0, count :     64, zoom :  6 },
+    { width : 256, height : 256, size : 1.0, count :    128, zoom :  7 },
+    { width : 256, height : 256, size : 1.0, count :    256, zoom :  8 },
+    { width : 256, height : 256, size : 1.0, count :    512, zoom :  9 },
+    { width : 256, height : 256, size : 1.0, count :   1024, zoom : 10 },
+    { width : 256, height : 256, size : 1.0, count :   2048, zoom : 11 },
+    { width : 256, height : 256, size : 1.0, count :   4096, zoom : 12 },
+    { width : 256, height : 256, size : 1.0, count :   8192, zoom : 13 },
+    { width : 256, height : 256, size : 1.0, count :  16384, zoom : 14 },
+    { width : 256, height : 256, size : 1.0, count :  32768, zoom : 15 },
+    { width : 256, height : 256, size : 1.0, count :  65536, zoom : 16 },
+    { width : 256, height : 256, size : 1.0, count : 131072, zoom : 17 },
+    { width : 256, height : 256, size : 1.0, count : 262144, zoom : 18 }
+  ],
+  geodeticSystem : "standard",                                             // 標準地図画像の座標系を指定
+  drawingSize    : 1.5,                                                    // 描画領域の1.5倍の領域サイズ分、タイル要素を生成
+  timeout        : 2000,                                                   // タイル画像読込完了までの待ち時間は2秒まで
+  zoomStart      : function(pOffset)
+  {
+    console.log("x=" + pOffset.x + " y=" + pOffset.y);
+  },
+  zoomEnd : function(pZoomInfo)
+  {
+    console.log("before=" + pZoomInfo.beforeScale + " after=" + pZoomInfo.afterScale);
+  },
+  moveStart : function(pOffset)
+  {
+    console.log("x=" + pOffset.x + " y=" + pOffset.y);
+  },
+  move : function(pDifference)
+  {
+    console.log("left=" + pDifference.left + " top=" + pDifference.top);
+  },
+  moveEnd : function()
+  {
+    console.log("move end");
+  },
+  tapHold : function(pOffset)
+  {
+    console.log("x=" + pOffset.x + " y=" + pOffset.y);
+  },
+  doubleTap : function(pDblTapInfo)
+  {
+    console.log("x=" + pDblTapInfo.x + " y=" + pDblTapInfo.y + " which=" + pDblTapInfo.which);
+  },
+  addTile : function(pTileElement, pTileInfo)
+  {
+    console.log("x=" + pTileInfo.x + " y=" + pTileInfo.y + " width=" + pTileInfo.width + " height=" + pTileInfo.height);
+  }
+});
+      </pre>
+  </div>
+
+
+  <div class="cols">
+    <h2>メソッド</h2>
+
+    <h3>create</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td colspan="2">説明</td>
+          <td>設定されたオプション値と引数で指定された位置情報に基づきタイル要素を描画します。</td>
+        </tr>
+        <tr>
+          <td colspan="2">構文</td>
+          <td>$(セレクタ).k2goTileViewer("create"[, 位置情報[, コールバック関数]]);</td>
+        </tr>
+        <tr>
+          <td rowspan="2">引数</td>
+          <td>位置情報</td>
+          <td>
+            <em>nullまたは指定無し</em><br>描画領域のサイズに対して、画像全体がちょうど納まる最適なスケールおよび位置に調整されます。<br><br>
+            <em>中心座標、スケール、表示サイズ（幅、高さ）を含むObjectを指定する場合</em>
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>center</td>
+                  <td>Object</td>
+                  <td>
+                    中心座標（left、top）を含むObject。値はabsolute（絶対値）、relative（相対値）、degrees（緯度経度）のいずれかで指定可能。
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>absolute</td>
+                          <td>Object</td>
+                          <td>scaleで指定したレイヤのタイル座標 X:0 Y:0 の左上隅を基点（left:0, top:0）とし、そこからのピクセル座標を指定。</td>
+                        </tr>
+                        <tr>
+                          <td>relative</td>
+                          <td>Object</td>
+                          <td>画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合位置を指定。</td>
+                        </tr>
+                        <tr>
+                          <td>degrees </td>
+                          <td>Object</td>
+                          <td>緯度経度を10進法で指定。ただしdegreesでの指定は、geodeticSystemオプション値を設定している場合のみ利用可能。</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td>scale </td>
+                  <td>Number</td>
+                  <td>表示したいスケールのレイヤ（scalesオプションのindex値）。</td>
+                </tr>
+                <tr>
+                  <td>width </td>
+                  <td>Number</td>
+                  <td>scaleで指定したレイヤの画像全体のうち、描画領域内に納めたいサイズ（幅）。</td>
+                </tr>
+                <tr>
+                  <td>height</td>
+                  <td>Number</td>
+                  <td>scaleで指定したレイヤの画像全体のうち、描画領域内に納めたいサイズ（高さ）。</td>
+                </tr>
+              </tbody>
+            </table>
+            ※実際に表示されるスケールは、描画領域のサイズに対して、scale、width、height、で指定した領域がちょうど納まる最適なスケールに調整されます。<br><br>
+            <em>四隅の座標を含むObjectを指定する場合</em>
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>bounds</td>
+                  <td>Object</td>
+                  <td>
+                    四隅の座標（left、top、right、bottom[、scale]）を含むObject。値はabsolute（絶対値）、relative（相対値）、degrees（緯度経度）のいずれかで指定可能。
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>absolute</td>
+                          <td>Object</td>
+                          <td>scaleで指定したレイヤのタイル座標 X:0 Y:0 の左上隅を基点（left:0, top:0）とし、そこからのピクセル座標を指定。</td>
+                        </tr>
+                        <tr>
+                          <td>relative</td>
+                          <td>Object</td>
+                          <td>画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合位置を指定。</td>
+                        </tr>
+                        <tr>
+                          <td>degrees </td>
+                          <td>Object</td>
+                          <td>緯度経度を10進法で指定。ただしdegreesでの指定は、geodeticSystemオプション値を設定している場合のみ利用可能。</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            ※実際に表示されるスケールは、描画領域のサイズに対して、指定した四隅がちょうど納まる最適なスケールに調整されます。
+          </td>
+        </tr>
+        <tr>
+          <td>コールバック関数</td>
+          <td>描画が完了した際に呼び出されるコールバック関数。</td>
+        </tr>
+        <tr>
+          <td colspan="2">戻り値</td>
+          <td>jqueryオブジェクト</td>
+        </tr>
+        <tr>
+          <td colspan="2">実装例</td>
+          <td class="code">
+            <pre>
+// 画像全体がちょうど納まるようにする場合
+$(セレクタ).k2goTileViewer("create");
+$(セレクタ).k2goTileViewer("create", null, function() { console.log("create"); }); //コールバック関数を指定
+
+// スケール、表示サイズ（幅、高さ）および中心座標をabsolute（絶対値）で指定する場合
+$(セレクタ).k2goTileViewer("create", { center : { absolute : { left : 29379, top : 11981 } }, scale : 4, width : 553, height : 522 }, function() { console.log("create"); });
+
+// スケール、表示サイズ（幅、高さ）および中心座標をrelative（相対値）で指定する場合
+$(セレクタ).k2goTileViewer("create", { center : { relative : { left : 0.896, top : 0.366 } }, scale : 4, width : 553, height : 522 }, function() { console.log("create"); });
+
+// スケール、表示サイズ（幅、高さ）および中心座標をdegrees（緯度経度）で指定する場合
+$(セレクタ).k2goTileViewer("create", { center : { degrees : { left : 142.79, top : 43.48 } }, scale : 4, width : 553, height : 522 }, function() { console.log("create"); });
+
+// 四隅の座標をabsolute（絶対値）で指定する場合
+$(セレクタ).k2goTileViewer("create", { bounds : { absolute : { left : 29103, top : 11720, right : 29656, bottom : 12242, scale : 4 } } }, function() { console.log("create"); });
+
+// 四隅の座標をrelative（相対値）で指定する場合
+$(セレクタ).k2goTileViewer("create", { bounds : { relative : { left : 0.888, top : 0.358, right : 0.905, bottom : 0.374 } } }, function() { console.log("create"); });
+
+// 四隅の座標をdegrees（緯度経度）で指定する場合
+$(セレクタ).k2goTileViewer("create", { bounds : { degrees : { left : 139.75, top : 45.56, right : 145.82, bottom : 41.40 } } }, function() { console.log("create"); });
+              </pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>move</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td colspan="2">説明</td>
+          <td>引数で指定された位置情報に基づき中心位置を移動します。</td>
+        </tr>
+        <tr>
+          <td colspan="2">構文</td>
+          <td>$(セレクタ).k2goTileViewer("move", 位置情報, 移動時間[, コールバック関数]);</td>
+        </tr>
+        <tr>
+          <td rowspan="3">引数</td>
+          <td>位置情報</td>
+          <td>
+            中心座標（left、top）を含むObject。値はdifference（移動量）、absolute（絶対値）、relative（相対値）、degrees（緯度経度）のいずれかで指定可能。
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>difference</td>
+                  <td>Object</td>
+                  <td>横方向へ移動するピクセル数（left）と縦方向へ移動するピクセル数（top）を指定。</td>
+                </tr>
+                <tr>
+                  <td>absolute </td>
+                  <td>Object</td>
+                  <td>移動後の中心座標（left, top）を、現在のスケールレイヤのタイル座標 X:0 Y:0 の左上隅を基点（left:0, top:0）に、そこからのピクセル座標で指定。</td>
+                </tr>
+                <tr>
+                  <td>relative </td>
+                  <td>Object</td>
+                  <td>移動後の中心座標（left, top）を、画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合位置で指定。</td>
+                </tr>
+                <tr>
+                  <td>degrees </td>
+                  <td>Object</td>
+                  <td>移動後の中心座標（left, top）を、緯度経度（10進法）で指定。ただしdegreesでの指定は、geodeticSystemオプション値を設定している場合のみ利用可能。</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>移動時間</td>
+          <td>現在の位置から指定された位置まで移動する際のアニメーション時間。単位はミリ秒。</td>
+        </tr>
+        <tr>
+          <td>コールバック関数</td>
+          <td>移動が完了した際に呼び出されるコールバック関数。</td>
+        </tr>
+        <tr>
+          <td colspan="2">戻り値</td>
+          <td>jqueryオブジェクト</td>
+        </tr>
+        <tr>
+          <td colspan="2">実装例</td>
+          <td class="code">
+            <pre>
+// 左へ100px、上へ100px、1秒かけて移動
+$(セレクタ).k2goTileViewer("move", { difference : { left : 100, top : 100 } }, 1000, function() { console.log("move"); });
+
+// 移動後の中心座標をabsolute（絶対値）で指定、1秒かけて移動
+$(セレクタ).k2goTileViewer("move", { absolute : { left : 29379, top : 11981 } }, 1000, function() { console.log("move"); });
+
+// 移動後の中心座標をrelative（相対値）で指定、1秒かけて移動
+$(セレクタ).k2goTileViewer("move", { relative : { left : 0.896, top : 0.366 } }, 1000, function() { console.log("move"); });
+
+// 移動後の中心座標をdegrees（緯度経度）で指定、1秒かけて移動
+$(セレクタ).k2goTileViewer("move", { degrees : { left : 142.79, top : 43.48 } }, 1000, function() { console.log("move"); });
+            </pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>zoomIn</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>描画領域の中心を基点にズームインします。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("zoomIn");</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>jqueryオブジェクト</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>zoomOut</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>描画領域の中心を基点にズームアウトします。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("zoomOut");</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>jqueryオブジェクト</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>addEntity</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>任意の要素（jqueryオブジェクト）を任意の位置にプロットします。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("addEntity", 引数);</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>
+            <em>プロットする要素と要素の中心座標を含むObjectを指定する場合</em><br />
+            どのスケールレイアでも、プロットされた要素のサイズは固定（予めcss等で設定された要素自身のサイズ）になります。
+            <table style="margin-bottom: 30px;">
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>element</td>
+                  <td>Object</td>
+                  <td>プロットする要素をjqueryオブジェクトで指定。既にプロット済みの要素（jqueryオブジェクト）を指定した場合は上書きされます。</td>
+                </tr>
+                <tr>
+                  <td>center</td>
+                  <td>Object</td>
+                  <td>
+                    プロットする要素の中心座標（left, top[,
+                    scale]）を含むObject。値はabsolute（絶対値）、relative（相対値）、degrees（緯度経度）、offset（オフセット）のいずれかで指定可能。
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>absolute</td>
+                          <td>Object</td>
+                          <td>要素の中心座標（left, top）を、指定したスケール（scale）のタイル座標 X:0 Y:0 の左上隅を基点（left:0,
+                            top:0）に、そこからのピクセル座標で指定。</td>
+                        </tr>
+                        <tr>
+                          <td>relative</td>
+                          <td>Object</td>
+                          <td>要素の中心座標（left, top）を、画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合位置で指定。</td>
+                        </tr>
+                        <tr>
+                          <td>degrees </td>
+                          <td>Object</td>
+                          <td>要素の中心座標（left, top）を、緯度経度（10進法）で指定。ただしdegreesでの指定は、geodeticSystemオプション値を設定している場合のみ利用可能。
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>offset </td>
+                          <td>Object</td>
+                          <td>要素の中心座標（left,
+                            top）を、現在の描画領域上のオフセット位置で指定。ただしoffsetでの指定は、描画領域にタイル要素が表示されている場合のみ利用可能（createメソッドが未実行時は利用不可）。
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <em>プロットする要素と要素の四隅の座標を含むObjectを指定する場合</em><br />
+            スケールレイア毎に、プロットされた要素のサイズもスケーラブルに変わります。
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>element</td>
+                  <td>Object</td>
+                  <td>プロットする要素をjqueryオブジェクトで指定。既にプロット済みの要素（jqueryオブジェクト）を指定した場合は上書きされます。</td>
+                </tr>
+                <tr>
+                  <td>bounds</td>
+                  <td>Object</td>
+                  <td>
+                    プロットする要素の四隅の座標（left, top, right, bottom[,
+                    scale]）を含むObject。値はabsolute（絶対値）、relative（相対値）、degrees（緯度経度）、offset（オフセット）のいずれかで指定可能。
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>absolute</td>
+                          <td>Object</td>
+                          <td>要素の四隅の座標（left, top, right, bottom）を、指定したスケール（scale）のタイル座標 X:0 Y:0 の左上隅を基点（left:0,
+                            top:0）に、そこからのピクセル座標で指定。</td>
+                        </tr>
+                        <tr>
+                          <td>relative</td>
+                          <td>Object</td>
+                          <td>要素の四隅の座標（left, top, right, bottom）を、画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合位置で指定。
+                          </td>
+                        </tr>
+                        <tr>
+                          <td>degrees </td>
+                          <td>Object</td>
+                          <td>要素の四隅の座標（left, top, right,
+                            bottom）を、緯度経度（10進法）で指定。ただしdegreesでの指定は、geodeticSystemオプション値を設定している場合のみ利用可能。</td>
+                        </tr>
+                        <tr>
+                          <td>offset </td>
+                          <td>Object</td>
+                          <td>要素の四隅の座標（left, top, right,
+                            bottom）を、現在の描画領域上のオフセット位置で指定。ただしoffsetでの指定は、描画領域にタイル要素が表示されている場合のみ利用可能（createメソッドが未実行時は利用不可）。
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>
+            <em>登録されたプロット情報を含むObject</em>
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>element</td>
+                  <td>Object</td>
+                  <td>プロットした要素（jqueryオブジェクト）</td>
+                </tr>
+                <tr>
+                  <td>center</td>
+                  <td>Object</td>
+                  <td>
+                    プロットした要素の中心座標（left, top）を含むObject。値はrelative（相対値）とdegrees（緯度経度）。
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>relative</td>
+                          <td>Object</td>
+                          <td>要素の中心座標（left, top）。値は画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合位置。</td>
+                        </tr>
+                        <tr>
+                          <td>degrees </td>
+                          <td>Object</td>
+                          <td>要素の中心座標（left, top）。値は緯度経度（10進法）。ただしdegreesの値は、geodeticSystemオプション値を設定している場合のみ取得可能。</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td>tileInfo</td>
+                  <td>Object</td>
+                  <td>
+                    プロットされた位置のタイル要素の情報。
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>x </td>
+                          <td>Number</td>
+                          <td>タイル座標（X）。</td>
+                        </tr>
+                        <tr>
+                          <td>y </td>
+                          <td>Number</td>
+                          <td>タイル座標（Y）。</td>
+                        </tr>
+                        <tr>
+                          <td>width </td>
+                          <td>Number</td>
+                          <td>タイル要素のサイズ（幅）。</td>
+                        </tr>
+                        <tr>
+                          <td>height</td>
+                          <td>Number</td>
+                          <td>タイル要素のサイズ（高さ）。</td>
+                        </tr>
+                        <tr>
+                          <td>left </td>
+                          <td>Number</td>
+                          <td>プロットされた要素の中心座標からタイル要素の左端までのピクセル座標。</td>
+                        </tr>
+                        <tr>
+                          <td>top </td>
+                          <td>Number</td>
+                          <td>プロットされた要素の中心座標からタイル要素の上端までのピクセル座標。</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+                <tr>
+                  <td>size</td>
+                  <td>Object</td>
+                  <td>
+                    プロットした要素のサイズ情報を含むObject。値はrelative（相対値）とdegrees（緯度経度）。
+                    ただし、プロットする要素の四隅の座標を指定した場合のみ取得可能。
+                    プロットする要素の中心座標を指定した場合には、size情報は戻り値に含まれません。
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>relative</td>
+                          <td>Object</td>
+                          <td>要素の幅（width）と高さ（height）。値は画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合サイズ。</td>
+                        </tr>
+                        <tr>
+                          <td>degrees </td>
+                          <td>Object</td>
+                          <td>要素の四隅の座標（left, top, right,
+                            bottom）。値は緯度経度（10進法）。ただしdegreesの値は、geodeticSystemオプション値を設定している場合のみ取得可能。</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>実装例</td>
+          <td class="code">
+            <pre>
+var $element = $("&lt;div id='plot'&gt;&lt;/div&gt;").css({ background : "#f00", width : "20px", height : "20px", opacity : 0.5 });
+
+// 中心座標をabsolute（絶対値）で指定
+var entity = $(セレクタ).k2goTileViewer("addEntity", { element : $element, center : { absolute : { left : 29379, top : 11981, scale : 4 } } });
+console.log(entity); // -> { element : jqueryオブジェクト, center : { relative : { left : 0.896, top : 0.366 }, degrees : { left : 142.79, top : 43.48 } }, tileInfo : { x : 28, y : 11, width : 256, height : 256, left : -176.75, top : -179.25 } }
+
+// 中心座標をrelative（相対値）で指定
+var entity = $(セレクタ).k2goTileViewer("addEntity", { element : $element, center : { relative : { left : 0.896, top : 0.366 } } });
+console.log(entity); // -> { element : jqueryオブジェクト, center : { relative : { left : 0.896, top : 0.366 }, degrees : { left : 142.79, top : 43.48 } }, tileInfo : { x : 28, y : 11, width : 256, height : 256, left : -176.75, top : -179.25 } }
+
+// 中心座標をdegrees（緯度経度）で指定
+var entity = $(セレクタ).k2goTileViewer("addEntity", { element : $element, center : { degrees : { left : 142.79, top : 43.48 } } });
+console.log(entity); // -> { element : jqueryオブジェクト, center : { relative : { left : 0.896, top : 0.366 }, degrees : { left : 142.79, top : 43.48 } }, tileInfo : { x : 28, y : 11, width : 256, height : 256, left : -176.75, top : -179.25 } }
+
+// 四隅の座標をabsolute（絶対値）で指定
+var entity = $(セレクタ).k2goTileViewer("addEntity", { element : $element, bounds : { absolute : { left : 29103, top : 11720, right : 29656, bottom : 12242, scale : 4 } } });
+console.log(entity); // -> { element : jqueryオブジェクト, center : { relative : { left : 0.896, top : 0.366 }, degrees : { left : 142.79, top : 43.48 } }, tileInfo : { x : 28, y : 11, width : 256, height : 256, left : -176.75, top : -179.25 }, size : { relative : { width : 0.017, height : 0.016 }, degrees: { left : 139.75, top : 45.56, right : 145.82, bottom : 41.40 } } }
+
+// 四隅の座標をrelative（相対値）で指定
+var entity = $(セレクタ).k2goTileViewer("addEntity", { element : $element, bounds : { relative : { left : 0.888, top : 0.358, right : 0.905, bottom : 0.374 } } });
+console.log(entity); // -> { element : jqueryオブジェクト, center : { relative : { left : 0.896, top : 0.366 }, degrees : { left : 142.79, top : 43.48 } }, tileInfo : { x : 28, y : 11, width : 256, height : 256, left : -176.75, top : -179.25 }, size : { relative : { width : 0.017, height : 0.016 }, degrees: { left : 139.75, top : 45.56, right : 145.82, bottom : 41.40 } } }
+
+// 四隅の座標をdegrees（緯度経度）で指定
+var entity = $(セレクタ).k2goTileViewer("addEntity", { element : $element, bounds : { degrees : { left : 139.75, top : 45.56, right : 145.82, bottom : 41.40 } } });
+console.log(entity); // -> { element : jqueryオブジェクト, center : { relative : { left : 0.896, top : 0.366 }, degrees : { left : 142.79, top : 43.48 } }, tileInfo : { x : 28, y : 11, width : 256, height : 256, left : -176.75, top : -179.25 }, size : { relative : { width : 0.017, height : 0.016 }, degrees: { left : 139.75, top : 45.56, right : 145.82, bottom : 41.40 } } }
+            </pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>getEntity</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>引数で指定された要素のプロット情報を取得します。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("getEntity", 引数);</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>プロット情報を取得したい要素（jqueryオブジェクト）。</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>引数で指定された要素のプロット情報（詳細はaddEntityメソッドの戻り値を参照）。引数で指定された要素が見つからない（プロットされた要素で無い）場合はnull。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>getEntities</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>プロットされた全ての要素のプロット情報を取得します。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("getEntities");</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>プロットされた全ての要素のプロット情報を含む配列。（個々のプロット情報の詳細はaddEntityメソッドの戻り値を参照）</td>
+        </tr>
+      </tbody>
+    </table>
+    </table>
+
+    <h3>deleteEntity</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>引数で指定されたプロット要素を削除します。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("deleteEntity", 引数);</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>削除したいプロット要素（jqueryオブジェクト）。</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>jqueryオブジェクト</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>deleteAllEntity</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>全てのプロット要素を削除します。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("deleteAllEntity");</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>jqueryオブジェクト</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>getPositionInfo</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>引数で指定されたオフセット位置の各種位置情報を取得します。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("getPositionInfo", 引数);</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>位置情報を取得したいオフセット位置（left, top）を含むObject。</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>
+            オフセット位置の各種位置情報を含むObject。
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>offset </td>
+                  <td>Object</td>
+                  <td>オフセット位置（left, top）を含むObject</td>
+                </tr>
+                <tr>
+                  <td>absolute</td>
+                  <td>Object</td>
+                  <td>絶対値座標（left, top）とスケール（scale）を含むObject。値はスケール（scale）のタイル座標 X:0 Y:0 の左上隅を基点（left:0,
+                    top:0）に、そこからのピクセル座標。</td>
+                </tr>
+                <tr>
+                  <td>relative</td>
+                  <td>Object</td>
+                  <td>相対値座標（left, top）を含むObject。値は画像全体の左端および上端を0、右端および下端を1、中央をそれぞれ0.5とした相対的な割合位置。</td>
+                </tr>
+                <tr>
+                  <td>degrees </td>
+                  <td>Object</td>
+                  <td>経緯度座標（left, top）を含むObject。値は10進法。ただしdegreesの値は、geodeticSystemオプション値を設定している場合のみ取得可能。</td>
+                </tr>
+                <tr>
+                  <td>tileInfo</td>
+                  <td>Object</td>
+                  <td>
+                    タイル要素の情報を含むObject
+                    <table>
+                      <thead>
+                        <tr>
+                          <td>名前</td>
+                          <td>型</td>
+                          <td>説明</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td>x </td>
+                          <td>Number</td>
+                          <td>タイル座標（X）。</td>
+                        </tr>
+                        <tr>
+                          <td>y </td>
+                          <td>Number</td>
+                          <td>タイル座標（Y）。</td>
+                        </tr>
+                        <tr>
+                          <td>width </td>
+                          <td>Number</td>
+                          <td>タイル要素のサイズ（幅）。</td>
+                        </tr>
+                        <tr>
+                          <td>height</td>
+                          <td>Number</td>
+                          <td>タイル要素のサイズ（高さ）。</td>
+                        </tr>
+                        <tr>
+                          <td>left </td>
+                          <td>Number</td>
+                          <td>オフセット位置からタイル要素の左端までのピクセル座標。</td>
+                        </tr>
+                        <tr>
+                          <td>top </td>
+                          <td>Number</td>
+                          <td>オフセット位置からタイル要素の上端までのピクセル座標。</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td>実装例</td>
+          <td class="code">
+            <pre>
+var position = $(セレクタ).k2goTileViewer("getPositionInfo", { left : 500, top : 500 });
+console.log(position); // -> { offset : { left : 500, top : 500 }, absolute : { left : 29379, top : 11981, scale : 4 }, relative : { left : 0.896, top : 0.366 }, degrees : { left : 142.79, top : 43.48 }, tileInfo : { x : 28, y : 11, width : 256, height : 256, left : -176.75, top : -179.25 } }
+            </pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>getCenterInfo</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>描画領域中心の各種位置情報を取得します。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("getCenterInfo");</td>
+        </tr>
+        <tr>
+          <td>引 </td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>描画領域中心の各種位置情報を含むObject（詳細はgetPositionInfoメソッドの戻り値を参照）。</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>getBoundsInfo</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>描画領域四隅の各種位置情報を取得します。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("getBoundsInfo");</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>
+            描画領域四隅の各種位置情報を含むObject。
+            <table>
+              <thead>
+                <tr>
+                  <td>名前</td>
+                  <td>型</td>
+                  <td>説明</td>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>leftTop </td>
+                  <td>Object</td>
+                  <td>描画領域左上隅の各種位置情報（詳細はgetPositionInfoメソッドの戻り値を参照）。</td>
+                </tr>
+                <tr>
+                  <td>leftBottom </td>
+                  <td>Object</td>
+                  <td>描画領域左下隅の各種位置情報（詳細はgetPositionInfoメソッドの戻り値を参照）。</td>
+                </tr>
+                <tr>
+                  <td>rightTop </td>
+                  <td>Object</td>
+                  <td>描画領域右上隅の各種位置情報（詳細はgetPositionInfoメソッドの戻り値を参照）。</td>
+                </tr>
+                <tr>
+                  <td>rightBottom</td>
+                  <td>Object</td>
+                  <td>描画領域右下隅の各種位置情報（詳細はgetPositionInfoメソッドの戻り値を参照）。</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>setOptions</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明</td>
+          <td>オプションの設定変更を行います。</td>
+        </tr>
+        <tr>
+          <td>構文</td>
+          <td>$(セレクタ).k2goTileViewer("setOptions", 引数);</td>
+        </tr>
+        <tr>
+          <td>引数</td>
+          <td>変更したいオプション値を含むObject。</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>jqueryオブジェクト</td>
+        </tr>
+        <tr>
+          <td>実装例</td>
+          <td class="code">
+            <pre>
+$(セレクタ).k2goTileViewer("setOptions",
+{
+timeout     : 2000, // タイムアウト値を2秒に設定
+drawingSize : 1.5,  // タイル生成領域を描画領域の1.5倍に設定
+disableMove : true, // ドラッグ機能を無効に設定
+disableZoom : true  // ズーム機能を無効に設定
+});
+            </pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>getOptions</h3>
+    <table class="method">
+      <tbody>
+        <tr>
+          <td>説明 </td>
+          <td>オプション値を取得します。</td>
+        </tr>
+        <tr>
+          <td>構文 </td>
+          <td>$(セレクタ).k2goTileViewer("getOptions");</td>
+        </tr>
+        <tr>
+          <td>引数 </td>
+          <td>無し</td>
+        </tr>
+        <tr>
+          <td>戻り値</td>
+          <td>現在のオプション値を含むObject。</td>
+        </tr>
+        <tr>
+          <td>実装例</td>
+          <td class="code">
+            <pre>
+var options = $(セレクタ).k2goTileViewer("getOptions");
+
+// options.timeoutからタイムアウト値を取得
+// options.drawingSizeからタイル生成領域の倍率を取得
+            </pre>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+
+
+
+  </div>
+
+
+</body>
