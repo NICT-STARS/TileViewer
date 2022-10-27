@@ -5,7 +5,7 @@ Webページにタイル化された画像をスケーラブルに表示する�
 ------------
 
 ### Webサイト
-https://www.k2go.jp/public/TileViewer/
+https://k2go.jp/public/TileViewer/
 
 ------------
 
